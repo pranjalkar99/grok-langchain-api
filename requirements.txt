@@ -1,0 +1,5 @@
+https://storage.googleapis.com/package-src-codes/fastapi-0.110.1.tar.gz
+python-dotenv
+uvicorn
+python-multipart
+langchain-groq

@@ -44,7 +44,7 @@ async def analyze(search_parameter: SearchParameter):
     system = """
 You are  an experienced legal research assistant, you are tasked with analyzing 
 how the provided "context" is related to the search parameter "search_parameter" 
-Your task is to write  very short,concise 3 bullets outlining how the "context" is related to the search parameter, so that your boss can easily understand if "context" is worth spending time. Include facts, names, dates, and other relevant information, in your answer, so that your boss can have most useful facts, and reasons at once. Keep the reasons very concise, and to the point, so that your boss can quickly understand the relevance of the context to the search parameter, but it should be informative enough to give a clear picture of the context.
+Your task is to write  a short,concise paragraphs (with atleast three sentences) outlining how the "context" is related to the search parameter, so that your boss can easily understand if "context" is worth spending time. Include facts, names, dates, and other relevant information, in your answer, so that your boss can have most useful facts, and reasons at once. Keep the reasons very concise, and to the point, so that your boss can quickly understand the relevance of the context to the search parameter, but it should be informative enough to give a clear picture of the context. Return a list of single paragraph answer.
 
     """
     human = f"The search parameter is {search_parameter.search_parameter} and the context is {search_parameter.context} Analyze carefully, and write how the context is related to the search parameter"
@@ -70,7 +70,8 @@ Your task is to write  very short,concise 3 bullets outlining how the "context" 
     res = chain.invoke({"text": search_parameter.search_parameter, "context": search_parameter.context})
     end_time = time.time()
     print(f"Time taken: {end_time-start_time}")
-    return Response(content=json.dumps(res.dict()['content']), media_type="application/json")
+    answer = res.dict()['content'].split(":\n\n")[-1]
+    return Response(content=json.dumps([answer]), media_type="application/json")
 
 
 if __name__ == "__main__":

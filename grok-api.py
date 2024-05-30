@@ -72,7 +72,7 @@ async def analyze(search_parameter: SearchParameter):
         end_time = time.time()
         print(f"Time taken: {end_time-start_time}")
         answer = res.dict()['content'].split(":\n\n")[-1]
-        return Response(content=json.dumps([answer]), media_type="application/json")
+        return Response(content=json.dumps(answer), media_type="application/json")
     except Exception as e:
         return Response(content=[], media_type="application/json")
 

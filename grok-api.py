@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response,Depends,Header, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.requests import Request
@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
 from typing import List
-import os
+import os,hashlib,base64
 import json, time
 from extra_provider_api import make_firworks_call
 from dotenv import load_dotenv
@@ -33,10 +33,24 @@ class SearchParameter(BaseModel):
 
 
 
+def encode_api_key(api_key: str) -> str:
+    api_key_bytes = api_key.encode("utf-8")
+    hash_bytes = hashlib.sha256(api_key_bytes).digest()
+    encoded_api_key = base64.b64encode(hash_bytes).decode("utf-8")
+    return encoded_api_key
+
+
+
+async def check_api_key(api_key: str = Header(...)):
+    if encode_api_key(api_key) != encode_api_key(os.environ.get('APP_API_KEY')):
+        raise HTTPException(status_code=401, detail="Invalid API key")
+
+
+
 def make_chain_call(llm, search_parameter):
 
-    print(search_parameter.search_parameter)
-    print(search_parameter.context)
+    # print(search_parameter.search_parameter)
+    # print(search_parameter.context)
     system = """
     You are  an experienced legal research assistant, you are tasked with analyzing 
     how the provided "context" is related to the search parameter "search_parameter" 
@@ -47,7 +61,7 @@ def make_chain_call(llm, search_parameter):
     return chain.invoke({"text": search_parameter.search_parameter, "context": search_parameter.context})
 
 
-@app.post("/analyze", response_class=StreamingResponse)
+@app.post("/analyze", response_class=StreamingResponse,dependencies=[Depends(check_api_key)])
 async def analyze(search_parameter: SearchParameter):
     try:
 

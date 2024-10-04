@@ -6,7 +6,7 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
-from langchain_openai import OpenAI
+from langchain_openai import ChatOpenAI
 from typing import List
 import os
 import json, time
@@ -61,7 +61,7 @@ async def analyze(search_parameter: SearchParameter):
         #     model_name="llama3-8b-8192",
         #     streaming=True,
         # )
-        chat = OpenAI(model = "gpt-4o-mini")
+        chat = ChatOpenAI(model = "gpt-4o-mini")
 
         res = make_chain_call(chat,search_parameter)
         end_time = time.time()

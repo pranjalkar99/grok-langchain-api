@@ -3,3 +3,5 @@ python-dotenv
 uvicorn
 python-multipart
 langchain-groq
+langchain-openai
+openai

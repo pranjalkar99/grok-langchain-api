@@ -6,6 +6,7 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
+from langchain_openai import OpenAI
 from typing import List
 import os
 import json, time
@@ -14,6 +15,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+OPENAI_API_KEY  = os.environ.get("OPENAI_API_KEY")
 
 app = FastAPI()
 
@@ -53,12 +55,13 @@ async def analyze(search_parameter: SearchParameter):
 
         start_time = time.time()
         # Call the ChatGroq API
-        chat = ChatGroq(
-            temperature=0,
-            groq_api_key=GROQ_API_KEY,
-            model_name="llama3-8b-8192",
-            streaming=True,
-        )
+        # chat = ChatGroq(
+        #     temperature=0,
+        #     groq_api_key=GROQ_API_KEY,
+        #     model_name="llama3-8b-8192",
+        #     streaming=True,
+        # )
+        chat = OpenAI(model = "gpt-4o-mini")
 
         res = make_chain_call(chat,search_parameter)
         end_time = time.time()

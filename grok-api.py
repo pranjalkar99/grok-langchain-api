@@ -33,21 +33,30 @@ class SearchParameter(BaseModel):
     search_parameter: str
     context: str
 
-
-
 def make_chain_call(llm, search_parameter):
-
+    # Log the search parameters
     print(search_parameter.search_parameter)
     print(search_parameter.context)
+
+    # Prepare system and human messages
     system = """
-    You are  an experienced legal research assistant, you are tasked with analyzing 
-    how the provided "context" is related to the search parameter "search_parameter" 
-    Your task is to write  a short,concise paragraphs (with atleast three sentences) outlining how the "context" is related to the search parameter, so that your boss can easily understand if "context" is worth spending time. Include facts, names, dates, and other relevant information, in your answer, so that your boss can have most useful facts, and reasons at once. Keep the reasons very concise, and to the point, so that your boss can quickly understand the relevance of the context to the search parameter, but it should be informative enough to give a clear picture of the context. Return a list of single paragraph answer."""
-    human = f"The search parameter is {search_parameter.search_parameter} and the context is {search_parameter.context} Analyze carefully, and write how the context is related to the search parameter"
+    You are an experienced legal research assistant. You are tasked with analyzing 
+    how the provided "context" is related to the search parameter "search_parameter". 
+    Your task is to write a short, concise paragraph (with at least three sentences) 
+    outlining how the "context" is related to the search parameter, so that your boss 
+    can easily understand if "context" is worth spending time. Include facts, names, 
+    dates, and other relevant information in your answer, so that your boss can have 
+    the most useful facts and reasons at once. Keep the reasons very concise, and to 
+    the point, so that your boss can quickly understand the relevance of the context 
+    to the search parameter, but it should be informative enough to give a clear 
+    picture of the context. Return a list of single paragraph answers.
+    """
+    human = f"The search parameter is '{search_parameter.search_parameter}' and the context is '{search_parameter.context}'. Analyze carefully and write how the context is related to the search parameter."
+
+    # Create the prompt and invoke the model
     prompt = ChatPromptTemplate.from_messages([("system", system), ("human", human)])
     chain = prompt | llm
     return chain.invoke({"text": search_parameter.search_parameter, "context": search_parameter.context})
-
 
 @app.post("/analyze", response_class=StreamingResponse)
 async def analyze(search_parameter: SearchParameter):
